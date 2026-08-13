@@ -1,5 +1,5 @@
-import { useContext, useEffect } from "react";
-import { AuthContext } from "../auth.context";
+import { useCallback, useContext, useEffect } from "react";
+import { AuthContext } from "../auth-context";
 import { login, register, logout, getMe } from "../services/auth.api";
 
 
@@ -10,41 +10,41 @@ export const useAuth = () => {
     const { user, setUser, loading, setLoading } = context
 
 
-    const handleLogin = async ({ email, password }) => {
+    const handleLogin = useCallback(async ({ email, password }) => {
         setLoading(true)
         try {
             const data = await login({ email, password })
             setUser(data.user)
         } catch (err) {
-
+            console.log(err)
         } finally {
             setLoading(false)
         }
-    }
+    }, [ setLoading, setUser ])
 
-    const handleRegister = async ({ username, email, password }) => {
+    const handleRegister = useCallback(async ({ username, email, password }) => {
         setLoading(true)
         try {
             const data = await register({ username, email, password })
             setUser(data.user)
         } catch (err) {
-
+            console.log(err)
         } finally {
             setLoading(false)
         }
-    }
+    }, [ setLoading, setUser ])
 
-    const handleLogout = async () => {
+    const handleLogout = useCallback(async () => {
         setLoading(true)
         try {
-            const data = await logout()
+            await logout()
             setUser(null)
         } catch (err) {
-
+            console.log(err)
         } finally {
             setLoading(false)
         }
-    }
+    }, [ setLoading, setUser ])
 
     useEffect(() => {
 
@@ -53,14 +53,16 @@ export const useAuth = () => {
 
                 const data = await getMe()
                 setUser(data.user)
-            } catch (err) { } finally {
+            } catch (err) {
+                console.log(err)
+            } finally {
                 setLoading(false)
             }
         }
 
         getAndSetUser()
 
-    }, [])
+    }, [ setLoading, setUser ])
 
     return { user, loading, handleRegister, handleLogin, handleLogout }
 }
